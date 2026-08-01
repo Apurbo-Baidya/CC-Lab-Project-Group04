@@ -1,0 +1,49 @@
+=== Compiling 'tests/valid/if_else.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int marks) [line 1]
+  Assign(marks) [line 3]
+    IntLiteral(80)
+  If [line 9]
+    Cond:
+      BinaryOp(>=) [line 5]
+        Ident(marks) [line 5]
+        IntLiteral(50)
+    Then:
+      Block
+        Print [line 6]
+          Ident(marks) [line 6]
+    Else:
+      Block
+        Print [line 8]
+          IntLiteral(0)
+
+Semantic analysis passed with 0 errors.
+
+=== Unoptimized Three-Address Code (Quadruple Table) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        80       -        marks   
+2    >=       marks    50       t1      
+3    ifFalse  t1       -        L1      
+4    print    marks    -        -       
+5    goto     -        -        L2      
+6    label    -        -        L1      
+7    print    0        -        -       
+8    label    -        -        L2      
+(0 arithmetic operation(s) were already constant-folded during generation)
+
+=== Optimized Three-Address Code (after dead-code elimination) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        80       -        marks   
+2    >=       marks    50       t1      
+3    ifFalse  t1       -        L1      
+4    print    marks    -        -       
+5    goto     -        -        L2      
+6    label    -        -        L1      
+7    print    0        -        -       
+8    label    -        -        L2      
+(0 dead quadruple(s) removed)
+
+=== Compilation finished successfully ===

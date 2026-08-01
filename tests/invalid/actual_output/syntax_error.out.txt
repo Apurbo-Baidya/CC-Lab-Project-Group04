@@ -1,0 +1,6 @@
+Syntax Error (line 3): syntax error near 'x'
+Syntax Error (line 5): syntax error near '{'
+=== Compiling 'tests/invalid/syntax_error.txt' ===
+
+
+Compilation halted: 0 lexical error(s), 2 syntax error(s).

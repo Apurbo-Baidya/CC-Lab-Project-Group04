@@ -1,0 +1,44 @@
+=== Compiling 'tests/valid/arithmetic.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int a) [line 1]
+  VarDecl(int b) [line 2]
+  VarDecl(int c) [line 3]
+  Assign(a) [line 5]
+    IntLiteral(5)
+  Assign(b) [line 6]
+    IntLiteral(10)
+  Assign(c) [line 8]
+    BinaryOp(+) [line 8]
+      Ident(a) [line 8]
+      BinaryOp(*) [line 8]
+        Ident(b) [line 8]
+        IntLiteral(2)
+  Print [line 10]
+    Ident(c) [line 10]
+
+Semantic analysis passed with 0 errors.
+
+=== Unoptimized Three-Address Code (Quadruple Table) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        5        -        a       
+2    =        10       -        b       
+3    *        b        2        t1      
+4    +        a        t1       t2      
+5    =        t2       -        c       
+6    print    c        -        -       
+(0 arithmetic operation(s) were already constant-folded during generation)
+
+=== Optimized Three-Address Code (after dead-code elimination) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        5        -        a       
+2    =        10       -        b       
+3    *        b        2        t1      
+4    +        a        t1       t2      
+5    =        t2       -        c       
+6    print    c        -        -       
+(0 dead quadruple(s) removed)
+
+=== Compilation finished successfully ===

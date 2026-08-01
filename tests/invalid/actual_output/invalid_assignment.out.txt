@@ -1,0 +1,14 @@
+Semantic Error (line 6): type mismatch: cannot assign bool to variable 'x' of type int
+=== Compiling 'tests/invalid/invalid_assignment.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int x) [line 1]
+  VarDecl(bool ready) [line 2]
+  Assign(ready) [line 4]
+    BoolLiteral(true)
+  Assign(x) [line 6]
+    Ident(ready) [line 6]
+
+Compilation halted: 1 semantic error(s) found.

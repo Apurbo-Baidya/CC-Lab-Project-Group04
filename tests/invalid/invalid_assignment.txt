@@ -1,0 +1,6 @@
+int x;
+bool ready;
+
+ready = true;
+
+x = ready;

@@ -1,0 +1,13 @@
+Semantic Error (line 3): type mismatch: cannot assign int to variable 'flag' of type bool
+=== Compiling 'tests/invalid/type_mismatch.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(bool flag) [line 1]
+  Assign(flag) [line 3]
+    BinaryOp(+) [line 3]
+      IntLiteral(10)
+      IntLiteral(20)
+
+Compilation halted: 1 semantic error(s) found.

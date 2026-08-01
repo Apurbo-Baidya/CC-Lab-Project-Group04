@@ -1,0 +1,51 @@
+=== Compiling 'tests/valid/while.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int i) [line 1]
+  Assign(i) [line 3]
+    IntLiteral(5)
+  While [line 8]
+    Cond:
+      BinaryOp(>) [line 5]
+        Ident(i) [line 5]
+        IntLiteral(0)
+    Body:
+      Block
+        Print [line 6]
+          Ident(i) [line 6]
+        Assign(i) [line 7]
+          BinaryOp(-) [line 7]
+            Ident(i) [line 7]
+            IntLiteral(1)
+
+Semantic analysis passed with 0 errors.
+
+=== Unoptimized Three-Address Code (Quadruple Table) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        5        -        i       
+2    label    -        -        L1      
+3    >        i        0        t1      
+4    ifFalse  t1       -        L2      
+5    print    i        -        -       
+6    -        i        1        t2      
+7    =        t2       -        i       
+8    goto     -        -        L1      
+9    label    -        -        L2      
+(0 arithmetic operation(s) were already constant-folded during generation)
+
+=== Optimized Three-Address Code (after dead-code elimination) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        5        -        i       
+2    label    -        -        L1      
+3    >        i        0        t1      
+4    ifFalse  t1       -        L2      
+5    print    i        -        -       
+6    -        i        1        t2      
+7    =        t2       -        i       
+8    goto     -        -        L1      
+9    label    -        -        L2      
+(0 dead quadruple(s) removed)
+
+=== Compilation finished successfully ===

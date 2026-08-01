@@ -1,0 +1,12 @@
+Semantic Error (line 3): redeclaration of 'count' (already declared at line 1 in this scope)
+=== Compiling 'tests/invalid/redeclaration.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int count) [line 1]
+  VarDecl(int count) [line 3]
+  Assign(count) [line 5]
+    IntLiteral(5)
+
+Compilation halted: 1 semantic error(s) found.

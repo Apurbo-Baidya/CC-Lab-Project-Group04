@@ -1,0 +1,23 @@
+Semantic Error (line 10): undeclared variable 'y'
+=== Compiling 'tests/invalid/scope_violation.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int x) [line 1]
+  Assign(x) [line 3]
+    IntLiteral(10)
+  If [line 10]
+    Cond:
+      BinaryOp(>) [line 5]
+        Ident(x) [line 5]
+        IntLiteral(0)
+    Then:
+      Block
+        VarDecl(int y) [line 6]
+        Assign(y) [line 7]
+          IntLiteral(5)
+  Print [line 10]
+    Ident(y) [line 10]
+
+Compilation halted: 1 semantic error(s) found.

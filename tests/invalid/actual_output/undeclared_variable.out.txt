@@ -1,0 +1,16 @@
+Semantic Error (line 5): assignment to undeclared variable 'y'
+Semantic Error (line 7): undeclared variable 'y'
+=== Compiling 'tests/invalid/undeclared_variable.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int x) [line 1]
+  Assign(x) [line 3]
+    IntLiteral(5)
+  Assign(y) [line 5]
+    IntLiteral(10)
+  Print [line 7]
+    Ident(y) [line 7]
+
+Compilation halted: 2 semantic error(s) found.

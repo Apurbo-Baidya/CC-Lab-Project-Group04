@@ -1,0 +1,109 @@
+=== Compiling 'tests/valid/complete_program.txt' ===
+
+Lexing and parsing succeeded. Abstract Syntax Tree:
+
+Program
+  VarDecl(int x) [line 1]
+  VarDecl(int y) [line 2]
+  VarDecl(bool done) [line 3]
+  Assign(x) [line 5]
+    IntLiteral(10)
+  Assign(y) [line 6]
+    IntLiteral(0)
+  Assign(done) [line 7]
+    BoolLiteral(false)
+  While [line 12]
+    Cond:
+      BinaryOp(>) [line 9]
+        Ident(x) [line 9]
+        IntLiteral(0)
+    Body:
+      Block
+        Assign(y) [line 10]
+          BinaryOp(+) [line 10]
+            Ident(y) [line 10]
+            Ident(x) [line 10]
+        Assign(x) [line 11]
+          BinaryOp(-) [line 11]
+            Ident(x) [line 11]
+            IntLiteral(1)
+  If [line 18]
+    Cond:
+      BinaryOp(>) [line 14]
+        Ident(y) [line 14]
+        IntLiteral(50)
+    Then:
+      Block
+        Assign(done) [line 15]
+          BoolLiteral(true)
+  If [line 22]
+    Cond:
+      BinaryOp(==) [line 18]
+        Ident(done) [line 18]
+        BoolLiteral(true)
+    Then:
+      Block
+        Print [line 19]
+          Ident(y) [line 19]
+    Else:
+      Block
+        Print [line 21]
+          Ident(x) [line 21]
+
+Semantic analysis passed with 0 errors.
+
+=== Unoptimized Three-Address Code (Quadruple Table) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        10       -        x       
+2    =        0        -        y       
+3    =        false    -        done    
+4    label    -        -        L1      
+5    >        x        0        t1      
+6    ifFalse  t1       -        L2      
+7    +        y        x        t2      
+8    =        t2       -        y       
+9    -        x        1        t3      
+10   =        t3       -        x       
+11   goto     -        -        L1      
+12   label    -        -        L2      
+13   >        y        50       t4      
+14   ifFalse  t4       -        L3      
+15   =        true     -        done    
+16   label    -        -        L3      
+17   ==       done     true     t5      
+18   ifFalse  t5       -        L4      
+19   print    y        -        -       
+20   goto     -        -        L5      
+21   label    -        -        L4      
+22   print    x        -        -       
+23   label    -        -        L5      
+(0 arithmetic operation(s) were already constant-folded during generation)
+
+=== Optimized Three-Address Code (after dead-code elimination) ===
+No.  Op       Arg1     Arg2     Result  
+1    =        10       -        x       
+2    =        0        -        y       
+3    =        false    -        done    
+4    label    -        -        L1      
+5    >        x        0        t1      
+6    ifFalse  t1       -        L2      
+7    +        y        x        t2      
+8    =        t2       -        y       
+9    -        x        1        t3      
+10   =        t3       -        x       
+11   goto     -        -        L1      
+12   label    -        -        L2      
+13   >        y        50       t4      
+14   ifFalse  t4       -        L3      
+15   =        true     -        done    
+16   label    -        -        L3      
+17   ==       done     true     t5      
+18   ifFalse  t5       -        L4      
+19   print    y        -        -       
+20   goto     -        -        L5      
+21   label    -        -        L4      
+22   print    x        -        -       
+23   label    -        -        L5      
+(0 dead quadruple(s) removed)
+
+=== Compilation finished successfully ===

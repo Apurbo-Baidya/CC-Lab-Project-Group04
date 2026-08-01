@@ -1,0 +1,5 @@
+Lexical Error (line 5): unexpected character '@'
+=== Compiling 'tests/invalid/lexical_error.txt' ===
+
+
+Compilation halted: 1 lexical error(s), 0 syntax error(s).

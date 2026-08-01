@@ -1,470 +1,157 @@
-# Compiler Construction Lab Project
+# CC-Lab-Project-Group04 — Mini-Language Compiler Front End
 
-### Design and Implement a Mini Programming Language Compiler using Flex and Bison
+**Compiler Construction Lab, CSE 416 — Metropolitan University, Bangladesh**
+Project: *Design and Implement a Mini Programming Language Compiler using Flex and Bison*
 
-Department of Computer Science and Engineering
-Metropolitan University, Bangladesh
+A Flex + Bison front end for the fixed language specified in `Compiler Construction Lab Project Manual.pdf`
+(Section 5): **lexer → parser (builds an AST) → semantic analysis (scoped symbol table + type
+checking) → intermediate code generation (Three-Address Code as a quadruple table)**, with
+constant folding and dead-code elimination applied as bonus optimizations (Section 14).
 
----
+## Team — Group 04
 
-Welcome to the official repository for the **Compiler Construction Lab Project**!
+| Name | GitHub Username | Role (primary) |
+|---|---|---|
+| Shahanur Skhter Simu | Shahanur2001 | Lexer & Symbol Table |
+| Sanjida Choudhury Safa| safachy128 | Parser / AST & Semantic Analysis |
+| Apurbo Baidya Sachchho | Apurbo-Baidya | Intermediate Code Generation & Testing/Docs |
 
-This repository serves as the **official project template and instruction repository** for the Compiler Construction Laboratory course.
+> Roles are "primary" only — see `docs/DESIGN_NOTES.md` and the commit history for how work
+> actually overlapped. All three members contributed commits across every module (see the
+> "Git Workflow" section below); this table is for the report/README, not a strict division of labor.
 
-Every project group **must fork this repository** and complete the entire project inside their own GitHub repository. This repository is provided only as a project template to help you organize your work. It does not contain the implementation of any required compiler phase. Every group is responsible for designing and implementing their own solution.
-
-
-
-# Important Notice
-
-This repository **does not contain the project solution**.
-
-It only contains:
-
-* Project instructions
-* Project manual
-* Repository guidelines
-* GitHub workflow
-* Required directory structure
-* Submission instructions
-
-The complete project specification is provided in:
-
-> **Compiler Construction Lab Project Manual.pdf**
-
-Read the project manual carefully before starting the implementation.
-
-
-
-# Project Objective
-
-The objective of this project is to design and implement a compiler front-end for a custom programming language using:
-
-* Flex
-* Bison
-* C/C++
-* Linux
-* Make
-* Git
-* GitHub
-
-The project integrates the major phases of compiler construction into one complete software system.
-
-Your compiler must implement:
-
-* Lexical Analysis
-* Syntax Analysis
-* Abstract Syntax Tree (AST)
-* Symbol Table
-* Semantic Analysis
-* Intermediate Code Generation (Three Address Code)
-
-Refer to the Project Manual for the complete language specification and implementation requirements.
-
-
-
-# Repository Workflow
-
-Every project group must strictly follow the workflow below.
+## Project layout
 
 ```
-Instructor Repository
-        │
-        ▼
-Fork Repository
-        │
-        ▼
-Student Group Repository
-        │
-        ▼
-Regular Development
-        │
-        ▼
-GitHub Repository Submission
+project-root/
+├── docs/
+│   ├── GRAMMAR.md            full EBNF grammar, precedence table, type rules
+│   ├── DESIGN_NOTES.md       architecture rationale, viva-prep answers
+│   └── Project_Report.md     the written report (Section 12 of the manual)
+├── src/
+│   ├── lexer/lexer.l         Flex specification
+│   ├── parser/parser.y       Bison grammar → builds the AST
+│   ├── ast/                  AST node types, constructors, printer
+│   ├── symbol_table/         scoped (nested-block) symbol table
+│   ├── semantic/             type-checking / scope-checking pass
+│   ├── codegen/               TAC generation, constant folding, dead-code elim.
+│   └── main.c                 driver: runs all phases in order
+├── tests/
+│   ├── valid/                 *.md description + *.txt runnable source + actual_output/
+│   └── invalid/                one case per required semantic/lexical/syntax error category
+├── examples/
+│   ├── valid/                  representative sample program
+│   └── invalid/                representative invalid sample program
+├── Makefile
+└── README.md (this file)
 ```
 
-Students **must not develop directly inside this repository.**
+## The language, briefly
 
+```c
+int x;
+int y;
+bool flag;
 
+x = 10;
+y = 0;
+flag = true;
 
-# Step 1: Fork This Repository
+while (x > 0) {
+    y = y + x;
+    x = x - 1;
+}
 
-Click the **Fork** button located at the top-right corner of this repository.
+if (flag == true) {
+    print y;
+} else {
+    print x;
+}
+```
 
-This will create your own copy of the repository under your GitHub account.
+Full spec: types `int|float|bool`; statements: declaration, assignment, `if`/`if-else`,
+`while`, `print`, nested `{ }` blocks with proper scoping; operators `+ - * / %`,
+`< > <= >= == !=`, `&& || !`. See `docs/GRAMMAR.md` for the complete CFG and precedence table.
 
-Each group must maintain its own repository.
+## Building
 
-Do **NOT** request write access to the instructor repository.
+Requires `gcc`, `flex`, `bison`, `make` (see `INSTALL.md`).
 
+```bash
+make
+```
 
+This runs Bison first (to generate `parser.tab.h`, which the lexer needs), then Flex, then
+compiles everything into a single executable: **`./compiler`**.
 
-# Step 2: Clone Your Own Repository
+```bash
+make clean   # removes build/, the compiler binary, and all generated Flex/Bison output
+```
 
-Clone **your fork**, not the instructor repository.
+## Running
+
+```bash
+./compiler <path-to-source-file>
+```
 
 Example:
 
 ```bash
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
+./compiler tests/valid/complete_program.txt
 ```
 
+For every input, the compiler prints, in order:
 
+1. Lexical/syntax errors (if any) — compilation halts here if either phase reports errors.
+2. The Abstract Syntax Tree (indented text form).
+3. Semantic analysis result — either `Semantic analysis passed with 0 errors.` or a list of
+   every semantic error found (undeclared variable, redeclaration, scope violation, type
+   mismatch, invalid assignment/expression), each with a line number.
+4. If semantic analysis passed: the unoptimized TAC (quadruple table), then the optimized
+   TAC after constant folding + dead-code elimination.
 
-# Step 3: Rename Your Repository
+Try it against every provided test case:
 
-Rename your repository using the following format:
-
-```
-CC-Lab-Project-GroupXX
-```
-
-Examples
-
-```
-CC-Lab-Project-Group01
-
-CC-Lab-Project-Group05
-
-CC-Lab-Project-Group12
+```bash
+for f in tests/valid/*.txt tests/invalid/*.txt; do echo "== $f =="; ./compiler "$f"; echo; done
 ```
 
+Each `tests/{valid,invalid}/*.txt` has a matching `.md` file describing the case and its
+expected error category, and a captured reference run under `tests/{valid,invalid}/actual_output/`.
 
+## Design highlights (see `docs/DESIGN_NOTES.md` for the full writeup)
 
-# Step 4: Add Team Members
+- **Three independent passes over one AST**, not one-pass evaluation: the parser (`parser.y`)
+  only builds the tree; `semantic.c` and `codegen.c` are separate tree-walks. This mirrors how
+  a real compiler front end is structured and is why semantic analysis can run to completion
+  and report *every* error in the program, not just the first one.
+- **Nested-scope symbol table** (`symbol_table.c`): a stack of scopes, pushed on block entry
+  and popped on block exit, so a variable declared inside `if`/`while` is correctly invisible
+  once that block ends (see `tests/invalid/scope_violation`).
+- **Quadruple-table TAC** with labels and `goto`/`ifFalse` for `if`, `if-else`, and `while`
+  (see `docs/GRAMMAR.md` and the sample TAC output in `tests/valid/complete_program.md`).
+- **Bonus**: constant folding (during TAC emission) and dead-code elimination (post-pass over
+  the quadruple table), each independently toggleable in `codegen.c`.
 
-Every member of the project group must be added as a collaborator.
+## Error recovery
 
-GitHub
+- **Lexical**: an unmatched character is reported with its line number; the scanner discards
+  it and continues, so multiple lexical errors in one file are all reported.
+- **Syntax**: `parser.y` uses Bison's `error` token to resynchronize at the next `;`, so one
+  syntax error doesn't necessarily stop the whole file from being checked.
+- **Semantic**: every statement is checked; errors accumulate and are all printed together.
 
-Settings
+## AI Usage Disclosure
 
-↓
+Per the manual's AI Usage Policy (Section 10), this project's implementation was developed
+with the assistance of Claude (Anthropic). All group members reviewed and understand every
+module and are prepared to explain any part of the implementation during the individual viva.
 
-Collaborators
+## Git Workflow
 
-↓
+See the commit history for evidence of ongoing, distributed contribution from all three group
+members (not one massive last-minute commit) — required by Section 9 of the manual.
 
-Add Collaborator
+## License
 
-Every member should contribute through their own GitHub account.
-
-
-
-# Step 5: Repository Visibility
-
-Keep your repository **Public** until the evaluation process has been completed.
-
-Do not delete your repository after submission.
-
-
-
-# Project Directory Structure
-
-Your repository should approximately follow the following structure.
-
-```
-project-root/
-
-├── docs/
-│
-├── src/
-│   ├── lexer/
-│   ├── parser/
-│   ├── ast/
-│   ├── semantic/
-│   └── symbol_table/
-│
-├── tests/
-│
-├── examples/
-│
-├── Makefile
-│
-├── README.md
-│
-└── Project Report.pdf
-```
-
-You may organize your source code further if necessary, but the overall structure should remain clean and professional.
-
-
-
-# Required Compiler Modules
-
-Your compiler must include the following components.
-
-## Lexical Analyzer
-
-* Token recognition
-* Keywords
-* Identifiers
-* Constants
-* Operators
-* Delimiters
-* Comment handling
-* Lexical error reporting
-
-
-
-## Syntax Analyzer
-
-* Complete CFG implementation
-* Parsing using Bison
-* Syntax error detection
-* Basic error recovery
-
-
-
-## Abstract Syntax Tree
-
-* Build AST during parsing
-* Meaningful node hierarchy
-* AST visualization or printing
-
-
-## Symbol Table
-
-* Variable declarations
-* Nested scopes
-* Identifier lookup
-* Scope management
-
-
-## Semantic Analyzer
-
-Your compiler must detect semantic errors including:
-
-* Undeclared variables
-* Redeclaration
-* Scope violations
-* Type mismatch
-* Invalid assignments
-* Invalid expressions
-
-
-## Intermediate Code Generation
-
-Generate Three Address Code (TAC).
-
-Support:
-
-* Arithmetic expressions
-* Relational expressions
-* Logical expressions
-* Assignment statements
-* if
-* if-else
-* while
-* print
-
-
-# Git Commit Policy
-
-GitHub activity will be considered during evaluation.
-
-Every student is expected to contribute throughout the semester.
-
-Avoid uploading the entire project at the end.
-
-Commit regularly.
-
-Good commit messages:
-
-```
-Add lexer rules for keywords
-
-Implement parser grammar
-
-Create AST node hierarchy
-
-Implement symbol table lookup
-
-Add semantic type checking
-
-Generate TAC for arithmetic expressions
-
-Fix parser conflicts
-
-Improve syntax error recovery
-```
-
-Avoid commit messages like:
-
-```
-update
-
-new
-
-code
-
-final
-
-fix
-
-project
-```
-
-Meaningful commit history reflects professional software development practices.
-
-
-# Branching (Recommended)
-
-You may either:
-
-* work directly on the main branch
-
-or
-
-* create feature branches
-
-Example
-
-```
-feature/lexer
-
-feature/parser
-
-feature/semantic
-
-feature/tac
-```
-
-Merge feature branches into `main` after testing.
-
-
-# .gitignore
-
-A `.gitignore` file is included to prevent generated and temporary files from being tracked by Git.
-
-Examples include:
-
-* Flex generated files
-* Bison generated files
-* Object files
-* Executables
-* IDE configuration files
-* Temporary files
-* Log files
-
-Do not remove the `.gitignore` file.
-
-
-# Coding Guidelines
-
-Write clean and readable code.
-
-Use
-
-* meaningful variable names
-* proper indentation
-* modular design
-* comments where appropriate
-
-Avoid
-
-* unnecessary global variables
-* duplicated code
-* magic numbers
-* excessively long functions
-
-
-# Test Suite
-
-This directory contains sample test programs for the compiler.
-
-- `valid/` contains programs that should compile successfully and produce valid output.
-- `invalid/` contains programs that intentionally violate lexical, syntactic, or semantic rules. Your compiler should detect and report these errors with clear diagnostic messages where possible.
-
-These files are provided as examples only. You are expected to develop additional test cases to thoroughly validate your compiler.
-
-
-# AI Usage Policy
-
-Artificial Intelligence tools are permitted.
-
-Examples include:
-
-* ChatGPT
-* GitHub Copilot
-* Claude
-* Gemini
-
-However,
-
-Every student is expected to fully understand every submitted line of code.
-
-During demonstration and viva, any group member may be asked to explain any part of the implementation.
-
-Failure to explain the implementation may result in mark deductions regardless of whether the compiler functions correctly.
-
-
-# Academic Integrity
-
-The submitted work must be original.
-
-Do not
-
-* copy another group's implementation
-* reuse previous semesters' projects
-* submit downloaded compiler implementations
-
-External resources may be used for learning purposes, but all references must be properly acknowledged where appropriate.
-
-
-# Submission
-
-Submit your:
-
-* GitHub Repository Link
-
-<!-- No ZIP archive should be submitted unless explicitly requested. -->
-
-The submitted repository must include:
-
-* Source Code
-* README
-* Project Report
-* Test Programs
-* Example Programs
-* Build Instructions
-* Execution Instructions
-
-
-# Evaluation
-
-Your project may be evaluated based on:
-
-* Correctness
-* Code quality
-* Documentation
-* GitHub activity
-* Demonstration
-* Presentation
-* Group Viva
-
-A working project alone does not guarantee full marks.
-
-Understanding your implementation is equally important.
-
-
-# Deadline
-
-Refer to the **Compiler Construction Lab Project Manual.pdf** for the official submission deadline.
-
-Late submissions may receive penalties according to the course policy.
-
----
-
-If you have any questions regarding the project specification, contact the instructor **before** the submission deadline.
-
-Please avoid waiting until the last moment to seek clarification.
-
----
-
-This project is intended to integrate everything you have learned throughout the Compiler Construction Laboratory course.
-
-Plan your work, collaborate effectively, commit regularly, and write clean, maintainable code.
-
-Happy Coding!
+See `LICENSE`.
